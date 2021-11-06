@@ -5,6 +5,7 @@ name = "pypi"
 
 [packages]
 graphviz = "*"
+matplotlib = "*"
 
 [dev-packages]
 autopep8 = "*"
