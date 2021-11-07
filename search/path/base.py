@@ -6,16 +6,19 @@ import matplotlib.pyplot as plt
 Pos = tuple[tuple[int, int], tuple[int, int]]
 
 
-def pos_center(pos: Pos):
+def pos_center(pos: Pos) -> tuple[float, float]:
+    """ロボットの中心位置"""
     pos1, pos2 = pos
     return (pos1[0]+pos2[0])/2, (pos1[1]+pos2[1])/2
 
 
 def get_count_artist(pos: Pos, count: int):
+    """数字をmatplotlibで表示"""
     x, y = pos_center(pos)
     return [plt.text(y, x, str(count), ha='center', va='center')]
 
 
+# 作業環境（0は障害物，1は自由領域）
 MAP = (
     (0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
     (0, 0, 1, 1, 1, 0, 1, 1, 1, 0),
@@ -34,13 +37,12 @@ MAP = (
 
 class State:
     def __init__(self, pos: Pos, depth: int, parent: Optional['State']) -> None:
-        """状態
+        """ロボットの状態
 
         Args:
-            seq (Seq): 8パズルを左上→右上→左下→右下の順に一列に並べたもの．空きマスは0で表す．
+            pos (Pos): 位置．`sorted(pos)`がなされたものとする．
             depth (int): ルートノードからの深さ
-            prev_act (Action): 前回の行為．どう動かしてこの状態になったか．
-            parent (State): 親ノード
+            parent (Optional[): 親ノード
         """
         self.pos = pos
         self.depth = depth
@@ -135,22 +137,26 @@ class State:
         return path
 
     def get_position_artist(self, fmt: str):
+        """マーカーをmatplotlibで表示"""
         return plt.plot(self.pos[0][1], self.pos[0][0], fmt) + plt.plot(self.pos[1][1], self.pos[1][0], fmt)
 
     def get_extending_position_artist(self):
+        """展開中を表すマーカー（緑）をmatplotlibで表示"""
         return self.get_position_artist('sg')
 
     def get_current_position_artist(self):
+        """現在位置を表すマーカー（黄）をmatplotlibで表示"""
         return self.get_position_artist('sy')
 
     def __lt__(self, other):
-        """比較関数"""
+        """A*で用いる比較関数"""
         if not isinstance(other, State):
             return NotImplemented
         return self.depth < other.depth
 
 
 def get_first_artist(initial_state: State, goal_pos: Pos):
+    """作業環境および初期位置と目標位置をmatplotlibで表示"""
     return [
         plt.imshow(MAP, cmap='gray', aspect='equal'),
         plt.text(initial_state.pos[0][1],
